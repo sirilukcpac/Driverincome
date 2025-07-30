@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สรุปรายได้โครงการ INCENTIVE CPAC METRO</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for scrollbar aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* Define a simple fade-in animation for the main container */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-500 to-indigo-600 min-h-screen flex items-center justify-center p-4 font-sans antialiased">
+    <!-- Main container for the application -->
+    <div class="bg-white p-8 rounded-lg shadow-2xl w-full max-w-6xl transform transition-all duration-300 ease-in-out scale-95 opacity-0 animate-fadeIn">
+        <!-- Application Title -->
+        <h1 class="text-3xl font-extrabold text-center text-gray-800 mb-6 border-b-2 pb-3 border-indigo-400">
+            สรุปรายได้โครงการ INCENTIVE CPAC METRO
+        </h1>
+
+        <!-- Search input and buttons section -->
+        <div class="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            <div>
+                <label for="searchYear" class="block text-gray-700 text-sm font-semibold mb-2">ปี:</label>
+                <select id="searchYear" class="shadow-sm appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition duration-200">
+                    <!-- Years will be populated by JavaScript -->
+                </select>
+            </div>
+            <div>
+                <label for="startMonth" class="block text-gray-700 text-sm font-semibold mb-2">เดือนเริ่มต้น:</label>
+                <select id="startMonth" class="shadow-sm appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition duration-200">
+                    <!-- Months will be populated by JavaScript -->
+                </select>
+            </div>
+            <div>
+                <label for="endMonth" class="block text-gray-700 text-sm font-semibold mb-2">เดือนสิ้นสุด:</label>
+                <select id="endMonth" class="shadow-sm appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition duration-200">
+                    <!-- Months will be populated by JavaScript -->
+                </select>
+            </div>
+            <div>
+                <label for="employeeId" class="block text-gray-700 text-sm font-semibold mb-2">รหัสพนักงาน:</label>
+                <input type="text" id="employeeId" class="shadow-sm appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition duration-200" placeholder="ป้อนรหัสพนักงาน">
+            </div>
+            <div class="col-span-1 md:col-span-4 flex justify-center gap-3 mt-4">
+                <!-- Search Button -->
+                <button id="searchButton" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-75 transition duration-200 shadow-md flex items-center justify-center">
+                    <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    ค้นหา
+                </button>
+                <!-- Clear Button -->
+                <button id="clearButton" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-opacity-75 transition duration-200 shadow-md flex items-center justify-center">
+                    <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    ปิด
+                </button>
+            </div>
+        </div>
+
+        <!-- Results container, initially hidden -->
+        <div id="resultsContainer" class="hidden mt-6 bg-gray-50 p-4 rounded-lg shadow-inner">
+            <h2 class="text-xl font-bold text-gray-700 mb-4">ผลการค้นหา:</h2>
+            <!-- Error message display -->
+            <div class="text-red-600 text-center text-lg font-medium hidden" id="errorMessage">ไม่พบข้อมูลสำหรับรหัสพนักงานนี้ หรือช่วงเดือน/ปีที่ระบุ.</div>
+
+            <!-- Fixed basic information section -->
+            <div id="basicInfoContainer" class="hidden bg-white p-4 rounded-lg shadow-md mb-4 border-l-4 border-indigo-500">
+                <p class="text-gray-800 text-lg mb-2"><span class="font-semibold">รหัสพนักงาน:</span> <span id="displayEmployeeId"></span></p>
+                <p class="text-gray-800 text-lg mb-2"><span class="font-semibold">ชื่อ-นามสกุล:</span> <span id="displayFullName"></span></p>
+                <p class="text-gray-800 text-lg"><span class="font-semibold">ผรม.:</span> <span id="displayContractor"></span></p>
+            </div>
+
+            <!-- Monthly data table -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-200">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">เดือน</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">ปี</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">เบอร์รถ</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">ขนาด</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">โรงงาน</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">TA100</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">ค่าเที่ยวรถติด</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">ค่าโยกย้าย</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">ค่าครองชีพ</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">งานเทช้า</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">รวมเป็นเงิน</th>
+                        </tr>
+                    </thead>
+                    <tbody id="monthlyDataTableBody" class="bg-white divide-y divide-gray-200">
+                        <!-- Data will be inserted here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // IMPORTANT: Replace 'YOUR_WEB_APP_URL_HERE' with the actual Web App URL obtained from Google Apps Script deployment.
+        // This URL is crucial for the frontend to communicate with your Google Sheet backend.
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxBP2ZdYZfIWfrMfi5Kn5WyXNbtyLt_7GsUGGwb5WTPBiebomCI9KkH3DRk8y304k4J/exec'; // *** สำคัญ: คุณต้องเปลี่ยนตรงนี้! ***
+
+        // Get references to DOM elements
+        const searchYearSelect = document.getElementById('searchYear');
+        const startMonthSelect = document.getElementById('startMonth');
+        const endMonthSelect = document.getElementById('endMonth');
+        const employeeIdInput = document.getElementById('employeeId');
+        const searchButton = document.getElementById('searchButton');
+        const clearButton = document.getElementById('clearButton');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const errorMessage = document.getElementById('errorMessage');
+        const basicInfoContainer = document.getElementById('basicInfoContainer');
+        const displayEmployeeId = document.getElementById('displayEmployeeId');
+        const displayFullName = document.getElementById('displayFullName');
+        const displayContractor = document.getElementById('displayContractor');
+        const monthlyDataTableBody = document.getElementById('monthlyDataTableBody');
+
+        // Apply initial fade-in animation to the main container
+        document.querySelector('.animate-fadeIn').classList.remove('opacity-0', 'scale-95');
+        document.querySelector('.animate-fadeIn').classList.add('opacity-100', 'scale-100');
+
+        // Month names and their corresponding numbers
+        const months = [
+            { name: 'มกราคม', value: 1 }, { name: 'กุมภาพันธ์', value: 2 }, { name: 'มีนาคม', value: 3 },
+            { name: 'เมษายน', value: 4 }, { name: 'พฤษภาคม', value: 5 }, { name: 'มิถุนายน', value: 6 },
+            { name: 'กรกฎาคม', value: 7 }, { name: 'สิงหาคม', value: 8 }, { name: 'กันยายน', value: 9 },
+            { name: 'ตุลาคม', value: 10 }, { name: 'พฤศจิกายน', value: 11 }, { name: 'ธันวาคม', value: 12 }
+        ];
+
+        /**
+         * Populates the year dropdown with a range of years.
+         */
+        function populateYears() {
+            const currentYear = new Date().getFullYear(); // Get current year
+            const startYear = 2025; // Set start year to 2025 as requested
+            const endYear = currentYear + 1; // End year is current year + 1
+
+            for (let year = startYear; year <= endYear; year++) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                searchYearSelect.appendChild(option);
+            }
+            // Set default to current year if it's within the range, otherwise default to 2025
+            if (currentYear >= startYear && currentYear <= endYear) {
+                searchYearSelect.value = currentYear;
+            } else {
+                searchYearSelect.value = startYear;
+            }
+        }
+
+        /**
+         * Populates the month dropdowns.
+         */
+        function populateMonths() {
+            months.forEach(month => {
+                const startOption = document.createElement('option');
+                startOption.value = month.value;
+                startOption.textContent = month.name;
+                startMonthSelect.appendChild(startOption);
+
+                const endOption = document.createElement('option');
+                endOption.value = month.value;
+                endOption.textContent = month.name;
+                endMonthSelect.appendChild(endOption);
+            });
+            // Set default to current month
+            const currentMonth = new Date().getMonth() + 1; // getMonth() is 0-indexed
+            startMonthSelect.value = currentMonth;
+            endMonthSelect.value = currentMonth;
+        }
+
+        /**
+         * Displays a custom alert message instead of the native alert().
+         * @param {string} message The message to display.
+         */
+        function showCustomAlert(message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50';
+            alertDiv.innerHTML = `
+                <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
+                    <p class="text-lg font-semibold text-gray-800 mb-4">${message}</p>
+                    <button id="customAlertClose" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200">
+                        ตกลง
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(alertDiv);
+
+            document.getElementById('customAlertClose').addEventListener('click', () => {
+                document.body.removeChild(alertDiv);
+            });
+        }
+
+        // Initialize dropdowns on page load
+        populateYears();
+        populateMonths();
+
+        // Event listener for the Search button click
+        searchButton.addEventListener('click', async () => {
+            const employeeId = employeeIdInput.value.trim();
+            const year = searchYearSelect.value;
+            const startMonth = startMonthSelect.value;
+            const endMonth = endMonthSelect.value;
+
+            // Input validation
+            if (!employeeId || !year || !startMonth || !endMonth) {
+                showCustomAlert('กรุณาป้อนข้อมูลให้ครบถ้วน (รหัสพนักงาน, ปี, เดือนเริ่มต้น, เดือนสิ้นสุด)');
+                return;
+            }
+
+            if (parseInt(startMonth) > parseInt(endMonth)) {
+                showCustomAlert('เดือนเริ่มต้นต้องไม่มากกว่าเดือนสิ้นสุด');
+                return;
+            }
+
+            // Show loading state and clear previous results
+            monthlyDataTableBody.innerHTML = `<tr><td colspan="11" class="text-center py-4 text-gray-500">กำลังค้นหาข้อมูล...</td></tr>`;
+            resultsContainer.classList.remove('hidden');
+            errorMessage.classList.add('hidden');
+            basicInfoContainer.classList.add('hidden'); // Hide basic info until data is loaded
+            displayEmployeeId.textContent = '';
+            displayFullName.textContent = '';
+            displayContractor.textContent = '';
+
+
+            try {
+                // Construct the URL for the Google Apps Script with all parameters
+                const fetchUrl = `${WEB_APP_URL}?employeeId=${encodeURIComponent(employeeId)}&year=${encodeURIComponent(year)}&startMonth=${encodeURIComponent(startMonth)}&endMonth=${encodeURIComponent(endMonth)}`;
+                console.log('Fetching from URL:', fetchUrl); // Log the URL being fetched
+                
+                const response = await fetch(fetchUrl);
+                console.log('Response object:', response); // Log the raw response object
+
+                if (!response.ok) {
+                    // If response is not OK (e.g., 404, 500 status), throw an error
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                }
+
+                const data = await response.json(); // Parse the JSON response
+                console.log('Parsed data:', data); // Log the parsed JSON data
+
+                monthlyDataTableBody.innerHTML = ''; // Clear previous search results
+
+                if (data && !data.error && data.basicInfo && data.monthlyData.length > 0) {
+                    // Display basic info
+                    // Corrected: Use 'รหัสพนักงาน' as the key from Apps Script response
+                    displayEmployeeId.textContent = data.basicInfo['รหัสพนักงาน']; 
+                    displayFullName.textContent = data.basicInfo['ชื่อ-นามสกุล'];
+                    displayContractor.textContent = data.basicInfo['ผรม.'];
+                    basicInfoContainer.classList.remove('hidden');
+
+                    // Populate monthly data table
+                    data.monthlyData.forEach(rowData => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${rowData['เดือน']}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${rowData['ปี']}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${rowData['เบอร์รถ']}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${rowData['ขนาด']}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${rowData['โรงงาน']}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${rowData['TA100']}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${rowData['ค่าเที่ยวรถติด']}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${rowData['ค่าโยกย้าย']}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${rowData['ค่าครองชีพ']}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${rowData['งานเทช้า']}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">${rowData['รวมเป็นเงิน'].toFixed(2)}</td>
+                        `;
+                        monthlyDataTableBody.appendChild(row);
+                    });
+                } else {
+                    // No data found or error from Apps Script
+                    errorMessage.classList.remove('hidden');
+                    basicInfoContainer.classList.add('hidden');
+                    monthlyDataTableBody.innerHTML = ''; // Ensure table is empty
+                }
+            } catch (error) {
+                // Handle any network or parsing errors
+                console.error('Error fetching data:', error);
+                errorMessage.textContent = `เกิดข้อผิดพลาดในการดึงข้อมูล: ${error.message} โปรดลองอีกครั้ง.`;
+                errorMessage.classList.remove('hidden');
+                basicInfoContainer.classList.add('hidden');
+                monthlyDataTableBody.innerHTML = ''; // Clear table content on error
+            }
+        });
+
+        // Event listener for the Clear button click
+        clearButton.addEventListener('click', () => {
+            // Reset search inputs
+            const currentYear = new Date().getFullYear();
+            const currentMonth = new Date().getMonth() + 1;
+            searchYearSelect.value = currentYear;
+            startMonthSelect.value = currentMonth;
+            endMonthSelect.value = currentMonth;
+            employeeIdInput.value = '';
+
+            // Hide results and error messages
+            monthlyDataTableBody.innerHTML = '';
+            resultsContainer.classList.add('hidden');
+            errorMessage.classList.add('hidden');
+            basicInfoContainer.classList.add('hidden');
+            displayEmployeeId.textContent = '';
+            displayFullName.textContent = '';
+            displayContractor.textContent = '';
+        });
+
+        // Allow pressing Enter to search in the employee ID input field
+        employeeIdInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                searchButton.click();
+            }
+        });
+    </script>
+</body>
+</html>
