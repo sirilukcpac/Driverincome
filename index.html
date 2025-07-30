@@ -128,7 +128,7 @@
     <script>
         // IMPORTANT: Replace 'YOUR_WEB_APP_URL_HERE' with the actual Web App URL obtained from Google Apps Script deployment.
         // This URL is crucial for the frontend to communicate with your Google Sheet backend.
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxBP2ZdYZfIWfrMfi5Kn5WyXNbtyLt_7GsUGGwb5WTPBiebomCI9KkH3DRk8y304k4J/exec'; // *** สำคัญ: คุณต้องเปลี่ยนตรงนี้! ***
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzo4BAA-3bBi6JZM-bUgGJGurvNSvL5gFc3kY0s4X8Ub_yZ9fRJKjIAtbWtprR_f5xa/exec'; // *** สำคัญ: คุณต้องเปลี่ยนตรงนี้! ***
 
         // Get references to DOM elements
         const searchYearSelect = document.getElementById('searchYear');
@@ -228,7 +228,8 @@
 
         // Event listener for the Search button click
         searchButton.addEventListener('click', async () => {
-            const employeeId = employeeIdInput.value.trim();
+            // Convert employeeId to uppercase for case-insensitive search
+            const employeeId = employeeIdInput.value.trim().toUpperCase(); 
             const year = searchYearSelect.value;
             const startMonth = startMonthSelect.value;
             const endMonth = endMonthSelect.value;
@@ -275,7 +276,6 @@
 
                 if (data && !data.error && data.basicInfo && data.monthlyData.length > 0) {
                     // Display basic info
-                    // Corrected: Use 'รหัสพนักงาน' as the key from Apps Script response
                     displayEmployeeId.textContent = data.basicInfo['รหัสพนักงาน']; 
                     displayFullName.textContent = data.basicInfo['ชื่อ-นามสกุล'];
                     displayContractor.textContent = data.basicInfo['ผรม.'];
@@ -344,3 +344,4 @@
     </script>
 </body>
 </html>
+
